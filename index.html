@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Agendamento</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Agendamento</h1>
+            <a href="admin.html" class="admin-link">Área Administrativa</a>
+        </header>
+
+        <!-- Formulário de Agendamento -->
+        <div id="schedulingForm" class="form-section">
+            <h2>Novo Agendamento</h2>
+            <input type="text" id="name" placeholder="Nome" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <input type="tel" id="phone" placeholder="Telefone" required>
+            <select id="dateSelect" required>
+                <option value="">Selecione uma data</option>
+                <!-- datas disponíveis serão carregadas aqui para teste-->
+            </select>
+            <select id="timeSelect" required>
+                <option value="">Selecione um horário</option>
+                <!-- horários disponíveis serão carregados aqui para teste -->
+            </select>
+            <button onclick="createScheduling()">Agendar</button>
+        </div>
+
+        <!-- Mensagem de confirmação -->
+        <div id="confirmationMessage" class="hidden">
+            <h3>Agendamento realizado com sucesso!</h3>
+            <p>Em breve entraremos em contato para confirmar seu horário.</p>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="database.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>

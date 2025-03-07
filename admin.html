@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Administrativo</title>
+    <style>
+        .hidden {
+            display: none !important;
+        }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Área Administrativa</h1>
+            <a href="index.html">Voltar para Home</a>
+        </header>
+
+        <!-- Login Form - Visível inicialmente -->
+        <div id="loginForm" class="form-section">
+            <h2>Login</h2>
+            <div class="form-group">
+                <input type="text" id="loginUsername" placeholder="Usuário">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="Senha">
+            </div>
+            <div class="form-group">
+                <button onclick="login()">Entrar</button>
+            </div>
+            <p class="help-text">Use admin/admin para teste</p>
+        </div>
+
+        <!-- admin Painel - Inicialmente escondido -->
+        <div id="adminContent" class="hidden">
+            <div class="admin-controls">
+                <button onclick="showAddDateTimeModal()">Adicionar Data/Horário</button>
+                <button onclick="loadSchedules()">Ver Agendamentos</button>
+                <button onclick="logout()" class="logout-btn">Sair</button>
+            </div>
+
+            <div id="schedulesList" class="hidden">
+                <!-- agendamentos serão carregados aqui -->
+            </div>
+
+            <!-- Modal -->
+            <div id="addDateTimeModal" class="modal hidden">
+                <div class="modal-content">
+                    <h3>Adicionar Data e Horário</h3>
+                    <input type="date" id="newDate">
+                    <input type="time" id="newTime">
+                    <div class="modal-buttons">
+                        <button onclick="addDateTime()">Adicionar</button>
+                        <button onclick="closeModal()">Fechar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Credenciais de teste
+        const ADMIN_USER = 'admin';
+        const ADMIN_PASS = 'admin';
+
+        // script carregado diretamente no html para teste
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('adminContent').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        });
+
+        function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (username === ADMIN_USER && password === ADMIN_PASS) {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                loadSchedules();
+            } else {
+                alert('Usuário ou senha incorretos!');
+            }
+        }
+
+        function logout() {
+            document.getElementById('adminContent').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('loginUsername').value = '';
+            document.getElementById('loginPassword').value = '';
+        }
+
+        function loadSchedules() {
+            const schedulesList = document.getElementById('schedulesList');
+            const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+            
+            schedulesList.innerHTML = '';
+            schedulesList.classList.remove('hidden');
+
+            if (schedules.length === 0) {
+                schedulesList.innerHTML = '<p>Nenhum agendamento encontrado.</p>';
+                return;
+            }
+
+            schedules.forEach((schedule, index) => {
+                const div = document.createElement('div');
+                div.className = 'schedule-item';
+                div.innerHTML = `
+                    <p>Nome: ${schedule.name}</p>
+                    <p>Email: ${schedule.email}</p>
+                    <p>Telefone: ${schedule.phone}</p>
+                    <p>Data: ${schedule.date}</p>
+                    <p>Horário: ${schedule.time}</p>
+                    <p>Status: ${schedule.status}</p>
+                    <button onclick="confirmSchedule(${index})">Confirmar</button>
+                    <button onclick="sendWhatsApp('${schedule.phone}')">WhatsApp</button>
+                `;
+                schedulesList.appendChild(div);
+            });
+        }
+
+        function showAddDateTimeModal() {
+            document.getElementById('addDateTimeModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('addDateTimeModal').classList.add('hidden');
+        }
+
+        function addDateTime() {
+            const date = document.getElementById('newDate').value;
+            const time = document.getElementById('newTime').value;
+
+            if (!date || !time) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            const availableTimes = JSON.parse(localStorage.getItem('availableTimes') || '[]');
+            availableTimes.push({ date, time });
+            localStorage.setItem('availableTimes', JSON.stringify(availableTimes));
+
+            alert('Horário adicionado com sucesso!');
+            closeModal();
+        }
+
+        function confirmSchedule(index) {
+            const schedules = JSON.parse(localStorage.getItem('schedules') || '[]');
+            schedules[index].status = 'confirmado';
+            localStorage.setItem('schedules', JSON.stringify(schedules));
+            loadSchedules();
+        }
+
+        function sendWhatsApp(phone) {
+            const message = 'Seu agendamento foi confirmado!';
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
